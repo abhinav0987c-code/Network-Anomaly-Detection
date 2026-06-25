@@ -1,0 +1,16 @@
+protocol_type,service,flag,src_bytes,dst_bytes,duration,logged_in,count,srv_count,same_srv_rate
+tcp,http,SF,250,1200,0,1,1,1,1.0
+tcp,http,SF,320,1500,0,1,2,2,1.0
+tcp,private,S0,0,0,0,0,250,10,0.04
+tcp,private,S0,0,0,0,0,300,15,0.05
+icmp,eco_i,SF,8,0,0,0,255,255,1.0
+tcp,ftp,SF,12000,0,1,0,1,1,1.0
+udp,private,SF,28,0,0,0,1,1,1.0
+tcp,http,SF,450,1800,0,1,1,1,1.0
+tcp,private,S0,0,0,0,0,500,20,0.02
+tcp,http,SF,210,1100,0,1,1,1,1.0
+tcp,http,SF,300,1400,0,1,2,1,0.5
+udp,domain_u,SF,44,44,0,0,15,15,1.0
+tcp,telnet,S0,0,0,0,0,10,1,0.1
+tcp,http,SF,280,1000,0,1,1,1,1.0
+icmp,eco_i,SF,8,0,0,0,100,100,1.0

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Architecture Suite</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+            margin-bottom: 50px;
+        }
+        h1 { color: #2c3e50; margin-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .hint { color: #7f8c8d; margin-top: 20px; font-style: italic; }
+        .section-desc { color: #5d6d7e; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Project Report: Backend Graph Suite</h1>
+    <p class="section-desc">The following diagrams illustrate the internal mechanics of the Network Intrusion Detection System.</p>
+
+    <!-- Slide 1: High Level Architecture -->
+    <div class="container">
+        <h2>1. System Architecture</h2>
+        <p class="section-desc">Overview of the component layers and their communication protocols. Shows the relationship between the Flask server, the Sniffer thread, and the ML Engine.</p>
+        <div class="mermaid">
+graph LR
+    subgraph "Frontend Layer"
+        UI[Web Dashboard]
+        WS_Client[Socket.IO Client]
+    end
+
+    subgraph "Communication Layer"
+        HTTP[Flask Routes / REST API]
+        WS_Server[Socket.IO Server]
+    end
+
+    subgraph "Core Backend Logic (app.py)"
+        Proc[Main Process]
+        Thread[Sniffer Background Thread]
+        
+        Proc -->|Manages| Thread
+        HTTP -->|Triggers| Prediction[Perform Prediction Logic]
+        WS_Server -->|Listens to| WS_Events[Toggle Sniffer Events]
+        WS_Events -->|Starts/Stops| Thread
+    end
+
+    subgraph "AI/ML Engine"
+        Prediction --> Pre[Preprocessing: Scale & Encode]
+        Pre --> Models{Ensemble Inference}
+        Models --> RF[Random Forest]
+        Models --> XGB[XGBoost]
+        Models --> LGB[LightGBM]
+        Models --> CAT[CatBoost]
+        
+        RF & XGB & LGB & CAT -->|Soft Voting| Result[Classification Result]
+    end
+
+    subgraph "Data Storage"
+        Result -->|Persistence| Logs[(JSON History Logs)]
+        Result -->|Real-time| WS_Server
+    end
+
+    style Proc fill:#d5f5e3,stroke:#27ae60
+    style Prediction fill:#d6eaf8,stroke:#2980b9
+    style Models fill:#fef9e7,stroke:#f1c40f
+    style Logs fill:#ebdef0,stroke:#8e44ad
+        </div>
+    </div>
+
+    <!-- Slide 2: Sequence Diagram -->
+    <div class="container">
+        <h2>2. Real-time Detection Sequence</h2>
+        <p class="section-desc">Illustrates the temporal flow of data from the raw network interface to the end-user dashboard.</p>
+        <div class="mermaid">
+sequenceDiagram
+    participant Net as Network Interface
+    participant Snif as Packet Sniffer (Thread)
+    participant Flask as Flask Server (app.py)
+    participant ML as ML Ensemble Engine
+    participant SIO as Socket.IO (Emitter)
+    participant UI as Web Frontend
+
+    Net->>Snif: Raw Packet Data
+    Snif->>Snif: Extract 13 Features
+    Snif->>Flask: Packet Feature Set
+    Flask->>ML: Pass Features
+    ML->>ML: Scale & Encode
+    ML->>ML: Run 4-Model Inference
+    ML-->>Flask: Prediction Result & Confidence
+    Flask->>SIO: Emit 'new_detection'
+    SIO->>UI: Update Live Table / Charts
+    Flask->>Flask: Append to live_history.json
+        </div>
+    </div>
+
+    <!-- Slide 3: Model Ensemble Flow -->
+    <div class="container">
+        <h2>3. Data Flow: Ensemble Inference</h2>
+        <p class="section-desc">Technical breakdown of the soft-voting ensemble mechanism used for final prediction.</p>
+        <div class="mermaid">
+graph TD
+    Data[Raw Packet Features] --> Scaler[StandardScaler]
+    Data --> Encode[LabelEncoders]
+    
+    Scaler & Encode --> Combined[Feature Vector]
+    
+    Combined --> M1[RF Model]
+    Combined --> M2[XGB Model]
+    Combined --> M3[LGBM Model]
+    Combined --> M4[CatBoost Model]
+    
+    M1 --> P1[Probabilities 1]
+    M2 --> P2[Probabilities 2]
+    M3 --> P3[Probabilities 3]
+    M4 --> P4[Probabilities 4]
+    
+    P1 & P2 & P3 & P4 --> Avg[Soft Voting: Mean Probability]
+    Avg --> Final[Final Class Selection]
+    
+    Final --> Out[Output: DoS / Probe / R2L / U2R / Normal]
+
+    style Combined fill:#fcf3cf
+    style Avg fill:#d6eaf8,stroke:#2980b9
+    style Out fill:#d5f5e3,stroke:#27ae60
+        </div>
+    </div>
+
+    <p class="hint">Tip: Use Windows + Shift + S to take a screenshot for your report.</p>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'neutral',
+            sequence: { showSequenceNumbers: true }
+        });
+    </script>
+</body>
+</html>
